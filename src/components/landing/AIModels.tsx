@@ -17,10 +17,22 @@ const models = [
     tags: ["STANDARD"],
   },
   {
+    name: "DALL-E 3",
+    description: "Advanced model with exceptional understanding of complex prompts",
+    features: ["Complex Prompts", "Creative", "Smart Design"],
+    tags: ["PREMIUM", "NEW"],
+  },
+  {
     name: "OpenJourney v4",
     description: "Specialized in creating artistic and creative logo concepts",
     features: ["Artistic Style", "Creative", "Unique"],
     tags: ["CREATIVE"],
+  },
+  {
+    name: "Realistic Vision V5.1",
+    description: "Photorealistic style for highly detailed logo renderings",
+    features: ["Photorealistic", "Fine Details", "Sharp Images"],
+    tags: ["PREMIUM"],
   },
   {
     name: "InstructPix2Pix",
@@ -39,11 +51,11 @@ const AIModels = () => {
             Powered by <span className="text-purple">AI Models</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Choose from a selection of powerful AI models to create the perfect logo
+            Choose from our selection of powerful AI models to create the perfect logo
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {models.map((model, index) => (
             <Card
               key={index}
