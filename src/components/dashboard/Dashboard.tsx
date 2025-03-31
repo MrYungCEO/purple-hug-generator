@@ -41,19 +41,23 @@ const Dashboard = () => {
               <ul className="space-y-3 text-sm text-gray-300">
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Be specific about style (minimalist, 3D, flat, etc.)</span>
+                  <span>Be specific about logo style (minimalist, 3D, flat, abstract, geometric)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Mention color schemes you want (purple and gold, blue gradient)</span>
+                  <span>Include color schemes (e.g., "blue and gold gradients", "monochrome with purple accents")</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Include relevant symbols or motifs (leaf, gear, wave)</span>
+                  <span>Describe shapes and elements clearly (circle, hexagon, leaf symbol, wave pattern)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Use negative prompts to avoid unwanted elements</span>
+                  <span>Add art style references (vector art, watercolor, neon, pixel art, hand-drawn)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
+                  <span>Use negative prompts to avoid unwanted elements (no text, no faces, no photorealism)</span>
                 </li>
               </ul>
               <Button 

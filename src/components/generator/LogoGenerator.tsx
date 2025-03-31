@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,19 +103,46 @@ const LogoGenerator = () => {
     setGeneratedLogo(null);
     
     try {
-      // Simulate API call to Hugging Face
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Create the request options for the Hugging Face API
+      const selectedModel = HF_MODELS.find(m => m.id === model)?.id || "stabilityai/stable-diffusion-xl-base-1.0";
+      const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
       
-      // For demo purposes, generate a placeholder image
-      // In a real app, you would call the Hugging Face API using the user's API key
-      const randomId = Math.floor(Math.random() * 1000);
-      const placeholderUrl = `https://picsum.photos/seed/${randomId}/800/800`;
+      // Prepare the request body
+      let requestBody: any = {
+        inputs: prompt,
+      };
       
-      setGeneratedLogo(placeholderUrl);
+      // Add negative prompt for models that support it
+      if (advancedMode && negativePrompt) {
+        requestBody.parameters = {
+          negative_prompt: negativePrompt
+        };
+      }
+      
+      // Call the Hugging Face API
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `API error: ${response.status}`);
+      }
+      
+      // Get the image data from the response
+      const imageBlob = await response.blob();
+      const imageUrl = URL.createObjectURL(imageBlob);
+      
+      setGeneratedLogo(imageUrl);
       toast.success("Logo generated successfully!");
     } catch (error) {
-      toast.error("Failed to generate logo. Please try again.");
-      console.error(error);
+      console.error("Error generating logo:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to generate logo. Please try again.");
     } finally {
       setIsGenerating(false);
     }
