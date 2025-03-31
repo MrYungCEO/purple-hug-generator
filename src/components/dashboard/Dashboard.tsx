@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { LogOut, BookOpen, Sparkles } from "lucide-react";
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { profile, logout } = useAuth();
 
-  if (!user) return null;
+  if (!profile) return null;
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
-          <UserProfile user={user} />
+          <UserProfile user={profile} />
           <div className="mt-6">
             <ApiKeyForm />
           </div>

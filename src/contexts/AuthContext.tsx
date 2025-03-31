@@ -1,10 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { User, Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-type User = {
+type UserProfile = {
   id: string;
-  email: string;
   username: string;
   apiKey: string | null;
   createdAt: Date;
@@ -12,64 +13,98 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  profile: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
-  logout: () => void;
-  updateApiKey: (apiKey: string) => void;
+  logout: () => Promise<void>;
+  updateApiKey: (apiKey: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user database for demonstration
-const USERS_STORAGE_KEY = "logoai_users";
-const CURRENT_USER_KEY = "logoai_current_user";
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user is logged in
-    const storedUser = localStorage.getItem(CURRENT_USER_KEY);
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // Fetch user profile from Supabase
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return;
+      }
+
+      if (data) {
+        setProfile({
+          id: data.id,
+          username: data.username,
+          apiKey: data.api_key,
+          createdAt: new Date(data.created_at),
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Use setTimeout to prevent potential deadlocks
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+    }).finally(() => {
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
-
-  const getUsers = (): User[] => {
-    const users = localStorage.getItem(USERS_STORAGE_KEY);
-    return users ? JSON.parse(users) : [];
-  };
-
-  const saveUsers = (users: User[]) => {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API request
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      const users = getUsers();
-      const foundUser = users.find(u => u.email === email);
-      
-      if (!foundUser) {
-        throw new Error("User not found");
+      if (error) {
+        throw error;
       }
       
-      // In a real app, you'd compare hashed passwords
-      // This is just for demonstration
-      
-      // Set the logged in user
-      setUser(foundUser);
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(foundUser));
       toast.success("Logged in successfully!");
-    } catch (error) {
-      toast.error("Login failed. Please check your credentials.");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed. Please check your credentials.");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -79,32 +114,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, username: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API request
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+          },
+        },
+      });
       
-      const users = getUsers();
-      
-      // Check if user already exists
-      if (users.some(u => u.email === email)) {
-        throw new Error("User with this email already exists");
+      if (error) {
+        throw error;
       }
       
-      // Create new user
-      const newUser: User = {
-        id: crypto.randomUUID(),
-        email,
-        username,
-        apiKey: null,
-        createdAt: new Date(),
-      };
-      
-      // Save user
-      saveUsers([...users, newUser]);
-      
-      // Log in the new user
-      setUser(newUser);
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
-      toast.success("Account created successfully!");
+      toast.success("Account created successfully! Check your email for verification.");
     } catch (error: any) {
       toast.error(error.message || "Registration failed. Please try again.");
       console.error(error);
@@ -113,33 +137,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem(CURRENT_USER_KEY);
-    toast.info("Logged out successfully");
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      toast.info("Logged out successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Error logging out");
+      console.error(error);
+    }
   };
 
-  const updateApiKey = (apiKey: string) => {
+  const updateApiKey = async (apiKey: string) => {
     if (!user) return;
     
-    const updatedUser = { ...user, apiKey };
-    setUser(updatedUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    
-    // Also update in the users list
-    const users = getUsers();
-    const updatedUsers = users.map(u => 
-      u.id === user.id ? updatedUser : u
-    );
-    saveUsers(updatedUsers);
-    
-    toast.success("API key updated successfully");
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ api_key: apiKey })
+        .eq("id", user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      setProfile(prev => prev ? { ...prev, apiKey } : null);
+      toast.success("API key updated successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Error updating API key");
+      console.error(error);
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        profile,
         isAuthenticated: !!user,
         isLoading,
         login,

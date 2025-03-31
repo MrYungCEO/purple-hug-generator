@@ -6,7 +6,6 @@ import { User } from "lucide-react";
 interface UserProfileProps {
   user: {
     id: string;
-    email: string;
     username: string;
     createdAt: Date;
   };
@@ -35,10 +34,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">Username</p>
           <p className="text-purple font-medium">{user.username}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">Email</p>
-          <p className="text-white">{user.email}</p>
         </div>
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">Member Since</p>

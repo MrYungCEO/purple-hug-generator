@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -17,10 +18,12 @@ const RegisterForm = () => {
     e.preventDefault();
     setError("");
     
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    // Validation
+    if (!email) return setError("Email is required");
+    if (!username) return setError("Username is required");
+    if (!password) return setError("Password is required");
+    if (password.length < 6) return setError("Password must be at least 6 characters");
+    if (password !== confirmPassword) return setError("Passwords do not match");
     
     await register(email, username, password);
   };
@@ -91,7 +94,12 @@ const RegisterForm = () => {
               className="bg-dark-lighter border-purple/30 focus:border-purple focus:ring-purple"
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <div className="text-red-500 text-sm flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
           <Button
             type="submit"
             className="w-full purple-gradient hover:opacity-90 transition-opacity"
