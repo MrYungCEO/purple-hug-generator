@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
-// Enhanced Hugging Face models list with more options and better descriptions
+// Updated Hugging Face models list with verified models that actually exist
 const HF_MODELS = [
   { 
     id: "stabilityai/stable-diffusion-xl-base-1.0", 
@@ -28,9 +28,24 @@ const HF_MODELS = [
     description: "Balanced model for versatile logo creation"
   },
   { 
-    id: "prompthero/openjourney-v4", 
-    name: "OpenJourney v4",
+    id: "prompthero/openjourney", 
+    name: "OpenJourney",
     description: "Artistic style optimized for creative concepts"
+  },
+  { 
+    id: "stabilityai/stable-diffusion-2-1", 
+    name: "Stable Diffusion 2.1",
+    description: "Improved version with better aesthetics and composition"
+  },
+  { 
+    id: "stabilityai/sdxl-turbo", 
+    name: "SDXL Turbo",
+    description: "Fast generation with good quality results"
+  },
+  { 
+    id: "SG161222/Realistic_Vision_V5.1_noVAE", 
+    name: "Realistic Vision V5.1",
+    description: "Photorealistic style for highly detailed logo renderings"
   },
   { 
     id: "timbrooks/instruct-pix2pix", 
@@ -38,24 +53,9 @@ const HF_MODELS = [
     description: "Specialized in editing and refining existing logos"
   },
   { 
-    id: "dall-e/dall-e-3", 
-    name: "DALL-E 3",
-    description: "Advanced text-to-image model with exceptional understanding of complex prompts"
-  },
-  { 
-    id: "CompVis/stable-diffusion-v2", 
-    name: "Stable Diffusion v2",
-    description: "Improved version with better aesthetics and composition"
-  },
-  { 
     id: "lambdalabs/sd-image-variations-diffusers", 
     name: "SD Image Variations",
     description: "Specialized in creating variations of existing logos"
-  },
-  { 
-    id: "SG161222/Realistic_Vision_V5.1", 
-    name: "Realistic Vision V5.1",
-    description: "Photorealistic style for highly detailed logo renderings"
   }
 ];
 
@@ -63,26 +63,26 @@ const HF_MODELS = [
 const PROMPT_TEMPLATES = [
   {
     title: "Minimalist Logo",
-    prompt: "A minimalist logo for a company named [COMPANY], clean lines, simple shapes, professional, [STYLE], [COLOR] color scheme"
+    prompt: "A minimalist logo for a company named [COMPANY], clean lines, simple shapes, professional, [STYLE], [COLOR] color scheme, vector art, high contrast"
   },
   {
     title: "Tech Company",
-    prompt: "A modern tech logo for [COMPANY], futuristic, innovative, abstract geometric shapes, [COLOR] gradient, vector style"
+    prompt: "A modern tech logo for [COMPANY], futuristic, innovative, abstract geometric shapes, [COLOR] gradient, vector style, clean design, professional"
   },
   {
     title: "Luxury Brand",
-    prompt: "An elegant luxury logo for [COMPANY], sophisticated, premium feel, [COLOR] and gold accents, timeless design"
+    prompt: "An elegant luxury logo for [COMPANY], sophisticated, premium feel, [COLOR] and gold accents, timeless design, high-end, minimalist"
   },
   {
     title: "Creative Agency",
-    prompt: "A creative and playful logo for [COMPANY] agency, artistic, unique, [COLOR] palette, hand-crafted feel"
+    prompt: "A creative and playful logo for [COMPANY] agency, artistic, unique, [COLOR] palette, hand-crafted feel, distinctive, memorable"
   }
 ];
 
 const LogoGenerator = () => {
   const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
-  const [negativePrompt, setNegativePrompt] = useState("blurry, distorted text, low quality, pixelated");
+  const [negativePrompt, setNegativePrompt] = useState("blurry, distorted text, low quality, pixelated, oversaturated, low-res, bad anatomy, watermark");
   const [model, setModel] = useState(HF_MODELS[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLogo, setGeneratedLogo] = useState<string | null>(null);
@@ -107,9 +107,12 @@ const LogoGenerator = () => {
       const selectedModel = HF_MODELS.find(m => m.id === model)?.id || "stabilityai/stable-diffusion-xl-base-1.0";
       const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
       
+      // Enhanced prompt for better logo generation
+      const enhancedPrompt = `${prompt}, logo design, high quality, professional, vector art`;
+      
       // Prepare the request body
       let requestBody: any = {
-        inputs: prompt,
+        inputs: enhancedPrompt,
       };
       
       // Add negative prompt for models that support it
@@ -118,6 +121,9 @@ const LogoGenerator = () => {
           negative_prompt: negativePrompt
         };
       }
+      
+      console.log("Calling Hugging Face API with model:", selectedModel);
+      console.log("Prompt:", enhancedPrompt);
       
       // Call the Hugging Face API
       const response = await fetch(apiEndpoint, {
@@ -131,6 +137,7 @@ const LogoGenerator = () => {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
+        console.error("API Error response:", errorData);
         throw new Error(errorData?.error || `API error: ${response.status}`);
       }
       

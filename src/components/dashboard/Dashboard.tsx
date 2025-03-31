@@ -41,23 +41,23 @@ const Dashboard = () => {
               <ul className="space-y-3 text-sm text-gray-300">
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Be specific about logo style (minimalist, 3D, flat, abstract, geometric)</span>
+                  <span>Be specific about target audience (tech startup, luxury brand, healthcare)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Include color schemes (e.g., "blue and gold gradients", "monochrome with purple accents")</span>
+                  <span>Describe exact shapes and composition (circular, hexagonal, asymmetric)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Describe shapes and elements clearly (circle, hexagon, leaf symbol, wave pattern)</span>
+                  <span>Specify exact colors (teal and orange, pastel blue, monochrome red)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Add art style references (vector art, watercolor, neon, pixel art, hand-drawn)</span>
+                  <span>Mention design style (flat design, 3D rendered, gradient, minimalist)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2 h-1.5 w-1.5 rounded-full bg-purple mt-1.5"></span>
-                  <span>Use negative prompts to avoid unwanted elements (no text, no faces, no photorealism)</span>
+                  <span>Include symbolic elements (leaf for eco brands, lightning for energy)</span>
                 </li>
               </ul>
               <Button 
