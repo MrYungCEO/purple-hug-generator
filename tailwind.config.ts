@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors
+				purple: {
+					DEFAULT: '#9b87f5',
+					dark: '#7E69AB',
+					darker: '#6E59A5',
+					light: '#b2a3f8',
+					lighter: '#c9befa',
+				},
+				dark: {
+					DEFAULT: '#121212',
+					light: '#1A1A1A',
+					lighter: '#222222',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -70,26 +84,39 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' },
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' },
+				},
+				'glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 5px 2px rgba(155, 135, 245, 0.3)',
+						borderColor: 'rgba(155, 135, 245, 0.7)'
 					},
-					to: {
-						height: '0'
-					}
-				}
+					'50%': { 
+						boxShadow: '0 0 15px 5px rgba(155, 135, 245, 0.5)',
+						borderColor: 'rgba(155, 135, 245, 0.9)'
+					},
+				},
+				'pulse-purple': {
+					'0%, 100%': { opacity: '0.6' },
+					'50%': { opacity: '1' },
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'glow': 'glow 3s ease-in-out infinite',
+				'pulse-purple': 'pulse-purple 3s ease-in-out infinite',
+				'float': 'float 6s ease-in-out infinite',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
